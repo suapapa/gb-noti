@@ -2,15 +2,16 @@ package main
 
 import (
 	"os"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 )
 
 var (
-	tgBot     *tgbotapi.BotAPI
-	tgAPIToke = os.Getenv("TELEGRAM_APITOKEN")
-	tgRoomID  = 1236355825
+	tgBot       *tgbotapi.BotAPI
+	tgAPIToke   = os.Getenv("TELEGRAM_APITOKEN")
+	tgRoomIDStr = os.Getenv("TELEGRAM_ROOM_ID")
 )
 
 func sendMsgToTelegram(msg []byte) error {
@@ -21,6 +22,11 @@ func sendMsgToTelegram(msg []byte) error {
 			return errors.Wrap(err, "fail to send msg to telegram")
 		}
 		// tgBot.Debug = true
+	}
+
+	tgRoomID, err := strconv.Atoi(tgRoomIDStr)
+	if err != nil {
+		return errors.Wrap(err, "fail to send msg to telegram")
 	}
 
 	// TODO: parse pretty msg from incomming json msg bytes
