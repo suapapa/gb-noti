@@ -20,7 +20,7 @@ func sendMsgToTelegram(msg []byte) error {
 		if err != nil {
 			return errors.Wrap(err, "fail to send msg to telegram")
 		}
-		tgBot.Debug = true
+		// tgBot.Debug = true
 	}
 
 	// TODO: parse pretty msg from incomming json msg bytes
