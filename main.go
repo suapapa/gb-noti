@@ -11,14 +11,14 @@ const (
 	topic = "homin-dev/gb"
 )
 
-// TODO
-// type GBMsg struct {
-
-// }
+var (
+	programName                   = "gb-noti"
+	buildStamp, gitHash, buildTag string
+)
 
 func main() {
-	log.Println("start gb-noti")
-	defer log.Println("gb-noti finished")
+	log.Printf("%s-%s-%s(%s)", programName, buildTag, gitHash, buildStamp)
+	defer log.Println("program-name finished")
 
 	conf := Config{
 		Host:     "homin.dev",
