@@ -26,6 +26,8 @@ COPY --from=builder /build/gb-noti .
 
 ENV MQTT_USERNAME=secret
 ENV MQTT_PASSWORD=secret
+ENV TELEGRAM_APITOKEN=secret
+ENV TELEGRAM_ROOM_ID=secret
 
 EXPOSE 8080
 
