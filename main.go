@@ -32,10 +32,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer subC.Disconnect(1000)
-	subC.Subscribe(topic, 0,
+	subC.Subscribe(topic, 1,
 		func(subClient mqtt.Client, msg mqtt.Message) {
 			log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
-			sendMsgToTelegram(msg.Payload())
+
+			// TODO: print from here!
+			log.Println(string(msg.Payload()))
 		},
 	)
 
