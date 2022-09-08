@@ -38,6 +38,7 @@ func main() {
 			sendMsgToTelegram(msg.Payload())
 		},
 	)
+
 	ch := make(chan any)
 	<-ch
 }
