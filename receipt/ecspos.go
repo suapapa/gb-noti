@@ -186,7 +186,7 @@ func (p *Printer) printBuf(cmdBuf, dataBuf []byte, widthDataLen int) error {
 			end = i + widthDataLen
 		}
 
-		printBuf := append(cmdBuf, dataBuf[i:i+end]...)
+		printBuf := append(cmdBuf, dataBuf[i:end]...)
 		if _, err := p.w.Write(printBuf); err != nil {
 			return errors.Wrap(err, "fail to print buf")
 		}
