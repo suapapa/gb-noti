@@ -65,8 +65,8 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 // 	i = 0
 // )
 
-func Txt2Img(ff font.Face, txt string) (image.Image, error) {
-	w, h := MeasureTxt(ff, txt)
+func Txt2Img(ff font.Face, w int, txt string) (image.Image, error) {
+	_, h := MeasureTxt(ff, txt)
 	dc := gg.NewContext(w, h)
 	dc.SetColor(color.White)
 	dc.Clear()

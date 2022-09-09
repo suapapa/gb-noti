@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	//go:embed font/Hoengseong_Hanu.ttf
+	//go:embed font/KOTRA_SONGEULSSI.ttf
+	//go:embed font/나눔손글씨_강부장님체.ttf
 	efs embed.FS
 
 	hanuFont map[float64]font.Face
@@ -23,7 +24,7 @@ func GetHanuFont(points float64) (font.Face, error) {
 		return ff, nil
 	}
 
-	fontName := "font/Hoengseong_Hanu.ttf"
+	fontName := "font/나눔손글씨_강부장님체.ttf"
 	data, err := efs.ReadFile(fontName)
 	if err != nil {
 		return nil, err
@@ -34,9 +35,9 @@ func GetHanuFont(points float64) (font.Face, error) {
 	}
 
 	nface := truetype.NewFace(f, &truetype.Options{
-		Size:    points,
-		Hinting: font.HintingFull,
+		Size: points,
 		// Hinting: font.HintingNone,
+		// Hinting: font.HintingFull,
 	})
 	hanuFont[points] = nface
 	return nface, nil
