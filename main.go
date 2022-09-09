@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
+	"github.com/suapapa/gb-noti/receipt"
 )
 
 const (
@@ -16,11 +18,31 @@ const (
 var (
 	programName                   = "gb-noti"
 	buildStamp, gitHash, buildTag string
+
+	flagRpType    string
+	flagRpDevPath string
+
+	rp *receipt.Printer
 )
 
 func main() {
 	log.Printf("%s-%s-%s(%s)", programName, buildTag, gitHash, buildStamp)
 	defer log.Println("program-name finished")
+
+	flag.StringVar(&flagRpType, "t", "serial", "receipt printer type [serial|usb]")
+	flag.StringVar(&flagRpDevPath, "d", "/dev/ttyACM0", "receipt printer dev path")
+	flag.Parse()
+
+	switch flagRpType {
+	case "serial":
+		rp = receipt.NewSerialPrinter(flagRpDevPath, 9600)
+	case "usb":
+		rp = receipt.NewUSBPrinter(flagRpDevPath)
+	default:
+		log.Println("select serial or usb")
+		os.Exit(-1)
+
+	}
 
 	conf := Config{
 		Host:     "homin.dev",

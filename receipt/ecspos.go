@@ -63,12 +63,12 @@ func (p *Printer) Close() error {
 	return p.c.Close()
 }
 
-func (p *Printer) PrintImage8bitDouble(file io.Reader) error {
+func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 	// decode jpeg into image.Image
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return errors.Wrap(err, "fail to print image")
-	}
+	// img, _, err := image.Decode(file)
+	// if err != nil {
+	// 	return errors.Wrap(err, "fail to print image")
+	// }
 	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 
 	var w, h int
@@ -110,12 +110,12 @@ func (p *Printer) PrintImage8bitDouble(file io.Reader) error {
 	return p.printBuf(cmdBuf, dataBuf, w)
 }
 
-func (p *Printer) PrintImage24bitDouble(file io.Reader) error {
+func (p *Printer) PrintImage24bitDouble(img image.Image) error {
 	// decode jpeg into image.Image
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return errors.Wrap(err, "fail to print image")
-	}
+	// img, _, err := image.Decode(file)
+	// if err != nil {
+	// 	return errors.Wrap(err, "fail to print image")
+	// }
 	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 
 	var w, h int

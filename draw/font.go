@@ -1,13 +1,12 @@
 package draw
 
 import (
-	"fmt"
+	"image"
 	"image/color"
 	"sort"
 	"strings"
 
 	"github.com/fogleman/gg"
-	"github.com/pkg/errors"
 	"golang.org/x/image/font"
 )
 
@@ -57,22 +56,21 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 	return
 }
 
-var (
-	i = 0
-)
+// var (
+// 	i = 0
+// )
 
-func Txt2Img(ff font.Face, txt string) error {
+func Txt2Img(ff font.Face, txt string) (image.Image, error) {
 	w, h := MeasureTxt(ff, txt)
-
 	dc := gg.NewContext(w+4, h+4)
 	dc.SetColor(color.White)
 	dc.Clear()
-	dc.SetRGB(0, 0, 0)
+	dc.SetColor(color.Black)
 	dc.SetFontFace(ff)
 	dc.DrawStringAnchored(txt, 2, 2, 0, 0.8)
-	if err := dc.SavePNG(fmt.Sprintf("out_%d.png", i)); err != nil {
-		return errors.Wrap(err, "fail to print")
-	}
-	i += 1
-	return nil
+	// if err := dc.SavePNG(fmt.Sprintf("out_%d.png", i)); err != nil {
+	// 	return nil, errors.Wrap(err, "fail to print")
+	// }
+	// i += 1
+	return dc.Image(), nil
 }
