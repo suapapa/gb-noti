@@ -24,7 +24,7 @@ func print(c *chat) error {
 		}
 	}()
 
-	mFF, err := draw.GetHanuFont(40)
+	mFF, err := draw.GetHanuFont(32)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
@@ -37,7 +37,7 @@ func print(c *chat) error {
 		}
 	}
 
-	fFF, err := draw.GetHanuFont(20)
+	fFF, err := draw.GetHanuFont(16)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}

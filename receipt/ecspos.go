@@ -79,7 +79,7 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
-	dataBuf := make([]byte, (w*h+8)/8)
+	dataBuf := make([]byte, (w*h+7)/8)
 
 	// 가로방향 점의 개수: nL + nH x 256
 	nH := byte(w / 256)
@@ -131,7 +131,7 @@ func (p *Printer) PrintImage24bitDouble(img image.Image) error {
 	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
-	dataBuf := make([]byte, (w*h+8)/8)
+	dataBuf := make([]byte, (w*h+7)/8)
 
 	// 가로방향 점의 개수: nL + nH x 256
 	nH := byte(w / 256)
@@ -179,7 +179,14 @@ func (p *Printer) printBuf(cmdBuf, dataBuf []byte, widthDataLen int) error {
 	p.w.Write([]byte{0x1B, 0x33, 0})
 
 	for i := 0; i < len(dataBuf); i += widthDataLen {
-		printBuf := append(cmdBuf, dataBuf[i:i+widthDataLen]...)
+		var end int
+		if i+widthDataLen >= len(dataBuf) {
+			end = len(dataBuf)
+		} else {
+			end = i + widthDataLen
+		}
+
+		printBuf := append(cmdBuf, dataBuf[i:i+end]...)
 		if _, err := p.w.Write(printBuf); err != nil {
 			return errors.Wrap(err, "fail to print buf")
 		}
