@@ -1,16 +1,18 @@
 package draw
 
 import (
-	"log"
+	"fmt"
+	"image/color"
 	"sort"
 	"strings"
 
+	"github.com/fogleman/gg"
+	"github.com/pkg/errors"
 	"golang.org/x/image/font"
 )
 
 func FitLines(ff font.Face, maxWidth int, origTxt string) []string {
 	origTxt = strings.ReplaceAll(origTxt, "\r\n", "\n")
-	log.Println(origTxt)
 	lines := strings.Split(origTxt, "\n")
 	var outLines []string
 
@@ -43,7 +45,6 @@ func FitLines(ff font.Face, maxWidth int, origTxt string) []string {
 			rlStart += i
 		}
 	}
-	log.Println(outLines)
 	return outLines
 }
 
@@ -54,4 +55,24 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 	w = int(d.MeasureString(txt) >> 6)
 	h = int(ff.Metrics().Height >> 6)
 	return
+}
+
+var (
+	i = 0
+)
+
+func Txt2Img(ff font.Face, txt string) error {
+	w, h := MeasureTxt(ff, txt)
+
+	dc := gg.NewContext(w+4, h+4)
+	dc.SetColor(color.White)
+	dc.Clear()
+	dc.SetRGB(0, 0, 0)
+	dc.SetFontFace(ff)
+	dc.DrawStringAnchored(txt, 2, 2, 0, 0.8)
+	if err := dc.SavePNG(fmt.Sprintf("out_%d.png", i)); err != nil {
+		return errors.Wrap(err, "fail to print")
+	}
+	i += 1
+	return nil
 }

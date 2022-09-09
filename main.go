@@ -38,13 +38,13 @@ func main() {
 		func(subClient mqtt.Client, msg mqtt.Message) {
 			log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
 
-			var c map[string]string
+			var c chat
 			if err := json.Unmarshal(msg.Payload(), &c); err != nil {
 				log.Fatal(errors.Wrap(err, "fail to print"))
 			}
 			// TODO: print from here!
 			// log.Println(string(msg.Payload()))
-			print(c)
+			print(&c)
 		},
 	)
 
