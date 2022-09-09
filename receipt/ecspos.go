@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	maxWidth = 576
+	MaxWidth = 576
 )
 
 type Printer struct {
@@ -72,8 +72,8 @@ func (p *Printer) PrintImage8bitDouble(file io.Reader) error {
 	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 
 	var w, h int
-	if origW != maxWidth {
-		w = maxWidth
+	if origW != MaxWidth {
+		w = MaxWidth
 		h = ((origH * w) / origW) / 3
 		img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
 	}
@@ -119,7 +119,7 @@ func (p *Printer) PrintImage24bitDouble(file io.Reader) error {
 	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 
 	var w, h int
-	if origW < maxWidth {
+	if origW < MaxWidth {
 		w = 576 // maxWidth
 		h = ((origH * w) / origW)
 		img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)

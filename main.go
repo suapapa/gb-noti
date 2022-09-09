@@ -38,6 +38,7 @@ func main() {
 
 			// TODO: print from here!
 			log.Println(string(msg.Payload()))
+			print(string(msg.Payload()))
 		},
 	)
 
