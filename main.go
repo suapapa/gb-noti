@@ -62,7 +62,7 @@ func main() {
 		}
 		// TODO: print from here!
 		// log.Println(string(msg.Payload()))
-		print(&c)
+		printToReceipt(&c)
 		return
 
 	}
@@ -82,7 +82,7 @@ func main() {
 			}
 			// TODO: print from here!
 			// log.Println(string(msg.Payload()))
-			print(&c)
+			printToReceipt(&c)
 		},
 	)
 
