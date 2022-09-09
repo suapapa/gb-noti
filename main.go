@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -36,9 +38,13 @@ func main() {
 		func(subClient mqtt.Client, msg mqtt.Message) {
 			log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
 
+			var c map[string]string
+			if err := json.Unmarshal(msg.Payload(), &c); err != nil {
+				log.Fatal(errors.Wrap(err, "fail to print"))
+			}
 			// TODO: print from here!
-			log.Println(string(msg.Payload()))
-			print(string(msg.Payload()))
+			// log.Println(string(msg.Payload()))
+			print(c)
 		},
 	)
 

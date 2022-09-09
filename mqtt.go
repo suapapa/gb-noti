@@ -40,7 +40,7 @@ func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
 	opts.SetTLSConfig(&tlsConfig)
 	opts.SetOrderMatters(false)
 	opts.SetClientID("suapapa-gb-noti")
-	opts.SetKeepAlive(20)
+	// opts.SetKeepAlive(20)
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	for !token.WaitTimeout(3 * time.Second) {
