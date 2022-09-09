@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/lestrrat-go/dither"
-	"github.com/nfnt/resize"
 	"github.com/pkg/errors"
 	"github.com/tarm/serial"
 )
@@ -69,17 +68,18 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 	// if err != nil {
 	// 	return errors.Wrap(err, "fail to print image")
 	// }
-	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
+	// origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
+	w, h := img.Bounds().Dx(), img.Bounds().Dy()
 
-	var w, h int
-	if origW != MaxWidth {
-		w = MaxWidth
-		h = ((origH * w) / origW) / 3
-		img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
-	}
+	// var w, h int
+	// if origW != MaxWidth {
+	// 	w = MaxWidth
+	// 	h = ((origH * w) / origW) / 3
+	// 	img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
+	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
-	dataBuf := make([]byte, (w*h+7)/8)
+	dataBuf := make([]byte, (w*h+8)/8)
 
 	// 가로방향 점의 개수: nL + nH x 256
 	nH := byte(w / 256)
@@ -103,6 +103,10 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 				}
 				dataByte |= bit
 			}
+			if dataBufIdx >= len(dataBuf) {
+				log.Printf("dbIdx=%d, dbLen=%d", dataBufIdx, len(dataBuf))
+				break
+			}
 			dataBuf[dataBufIdx] = dataByte
 			dataBufIdx += 1
 		}
@@ -116,17 +120,18 @@ func (p *Printer) PrintImage24bitDouble(img image.Image) error {
 	// if err != nil {
 	// 	return errors.Wrap(err, "fail to print image")
 	// }
-	origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
+	// origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
+	w, h := img.Bounds().Dx(), img.Bounds().Dy()
 
-	var w, h int
-	if origW < MaxWidth {
-		w = 576 // maxWidth
-		h = ((origH * w) / origW)
-		img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
-	}
+	// var w, h int
+	// if origW < MaxWidth {
+	// 	w = 576 // maxWidth
+	// 	h = ((origH * w) / origW)
+	// 	img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
+	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
-	dataBuf := make([]byte, (w*h+7)/8)
+	dataBuf := make([]byte, (w*h+8)/8)
 
 	// 가로방향 점의 개수: nL + nH x 256
 	nH := byte(w / 256)
@@ -150,6 +155,10 @@ func (p *Printer) PrintImage24bitDouble(img image.Image) error {
 						bit = 1 << (7 - yi)
 					}
 					dataByte |= bit
+				}
+				if dataBufIdx >= len(dataBuf) {
+					log.Printf("dbIdx=%d, dbLen=%d", dataBufIdx, len(dataBuf))
+					break
 				}
 				dataBuf[dataBufIdx] = dataByte
 				dataBufIdx += 1
