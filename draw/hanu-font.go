@@ -34,9 +34,9 @@ func GetHandWritingFont(points float64) (font.Face, error) {
 	}
 
 	nface := truetype.NewFace(f, &truetype.Options{
-		Size: points,
+		Size:    points,
+		Hinting: font.HintingFull,
 		// Hinting: font.HintingNone,
-		// Hinting: font.HintingFull,
 	})
 	handwritingFont[points] = nface
 	return nface, nil

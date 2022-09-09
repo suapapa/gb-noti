@@ -1,6 +1,7 @@
 package draw
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"log"
@@ -11,7 +12,7 @@ import (
 	"golang.org/x/image/font"
 )
 
-func FitLines(ff font.Face, maxWidth int, origTxt string) []string {
+func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
 	origTxt = strings.ReplaceAll(origTxt, "\r\n", "\n")
 	lines := strings.Split(origTxt, "\n")
 	var outLines []string
@@ -40,6 +41,7 @@ func FitLines(ff font.Face, maxWidth int, origTxt string) []string {
 			}
 
 			sl := string(rl[rlStart : rlStart+i])
+			log.Printf("sl += '%s'", sl)
 			outLines = append(outLines, sl)
 
 			rlStart += i
@@ -49,6 +51,7 @@ func FitLines(ff font.Face, maxWidth int, origTxt string) []string {
 }
 
 func MeasureTxt(ff font.Face, txt string) (w, h int) {
+	log.Printf("mesuing '%s'...", txt)
 	d := &font.Drawer{
 		Face: ff,
 	}
@@ -56,12 +59,21 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 	h = int(ff.Metrics().Height >> 6)
 	w = ((w + 7) / 8) * 8 // set w to multiple 8
 	h = ((h + 7) / 8) * 8 // set h to multiple 8
+	if w < 0 {
+		w = 0
+	}
+	if h < 0 {
+		h = 0
+	}
 
-	log.Println(w, h)
 	return
 }
 
 func Txt2Img(ff font.Face, w int, txt string) (image.Image, error) {
+	if ff == nil {
+		return nil, fmt.Errorf("nil font")
+	}
+
 	_, h := MeasureTxt(ff, txt)
 	dc := gg.NewContext(w, h)
 	dc.SetColor(color.White)

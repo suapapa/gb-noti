@@ -10,7 +10,7 @@ import (
 )
 
 func DrawLines(ff font.Face, msg string, maxWidth int) (image.Image, error) {
-	lines := FitLines(ff, maxWidth, msg)
+	lines := FitToLines(ff, maxWidth, msg)
 	if len(lines) == 0 {
 		return nil, fmt.Errorf("no conents")
 	}

@@ -42,7 +42,7 @@ func printToReceipt(c *chat) error {
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
-	lines := draw.FitLines(mFF, receipt.MaxWidth, c.Msg)
+	lines := draw.FitToLines(mFF, receipt.MaxWidth, c.Msg)
 	if len(lines) == 0 {
 		return fmt.Errorf("no content")
 	}
@@ -55,7 +55,7 @@ func printToReceipt(c *chat) error {
 	rp.WriteString(fromCP949)
 
 	defer rp.CutPaper()
-	lines = append(lines, "---") // TODO: 마지막 줄이 잘려서 패딩 라인 붙임
+	lines = append(lines, " ") // TODO: 마지막 줄이 잘려서 패딩 라인 붙임
 	for _, l := range lines {
 		if img, err := draw.Txt2Img(mFF, receipt.MaxWidth, l); err != nil {
 			return errors.Wrap(err, "fail to print")
