@@ -206,3 +206,13 @@ func (p *Printer) CutPaper() error {
 	}
 	return nil
 }
+
+func (p *Printer) WriteString(txt string) error {
+	if _, err := p.w.Write([]byte(txt)); err != nil {
+		return errors.Wrap(err, "fail to cut paper")
+	}
+	if err := p.w.Flush(); err != nil {
+		return errors.Wrap(err, "fail to cut paper")
+	}
+	return nil
+}

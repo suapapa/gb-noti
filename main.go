@@ -62,7 +62,7 @@ func main() {
 		}
 		// TODO: print from here!
 		// log.Println(string(msg.Payload()))
-		print(&c)
+		printToReceipt(&c)
 		return
 
 	}
@@ -80,9 +80,9 @@ func main() {
 			if err := json.Unmarshal(msg.Payload(), &c); err != nil {
 				log.Fatal(errors.Wrap(err, "fail to print"))
 			}
-			// TODO: print from here!
-			// log.Println(string(msg.Payload()))
-			print(&c)
+			if err := printToReceipt(&c); err != nil {
+				log.Fatal(errors.Wrap(err, "fail to print"))
+			}
 		},
 	)
 

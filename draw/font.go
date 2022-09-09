@@ -61,21 +61,14 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 	return
 }
 
-// var (
-// 	i = 0
-// )
-
-func Txt2Img(ff font.Face, txt string) (image.Image, error) {
-	w, h := MeasureTxt(ff, txt)
+func Txt2Img(ff font.Face, w int, txt string) (image.Image, error) {
+	_, h := MeasureTxt(ff, txt)
 	dc := gg.NewContext(w, h)
 	dc.SetColor(color.White)
 	dc.Clear()
 	dc.SetColor(color.Black)
 	dc.SetFontFace(ff)
 	dc.DrawStringAnchored(txt, float64(w)/2, float64(h)/2, 0.5, 0.3)
-	// if err := dc.SavePNG(fmt.Sprintf("out_%d.png", i)); err != nil {
-	// 	return nil, errors.Wrap(err, "fail to print")
-	// }
-	// i += 1
+
 	return dc.Image(), nil
 }

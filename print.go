@@ -14,33 +14,48 @@ type chat struct {
 	RemoteAddr string `json:"remoteAddr"`
 }
 
-func print(c *chat) error {
+// 전체 메시지를 통 이미지로 만들어 출력
+/*
+func printToReceipt(c *chat) error {
+	mFF, err := draw.GetHanuFont(36)
+	if err != nil {
+		return errors.Wrap(err, "fail to print")
+	}
+	img, err := draw.DrawLines(mFF, c.Msg, receipt.MaxWidth)
+	if err != nil {
+		return errors.Wrap(err, "fail to print")
+	}
 	defer rp.CutPaper()
 
-	mFF, err := draw.GetHanuFont(48)
+	rp.WriteString(fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr))
+	rp.PrintImage8bitDouble(img)
+
+	return nil
+}
+*/
+
+// 각 줄을 이미지로 만들어 출력
+func printToReceipt(c *chat) error {
+	mFF, err := draw.GetHandWritingFont(36)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
+
+	rp.WriteString(fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr))
 	lines := draw.FitLines(mFF, receipt.MaxWidth, c.Msg)
+	defer func() {
+		if len(lines) > 0 {
+			rp.CutPaper()
+		}
+	}()
+
 	for _, l := range lines {
-		if img, err := draw.Txt2Img(mFF, l); err != nil {
+		if img, err := draw.Txt2Img(mFF, receipt.MaxWidth, l); err != nil {
 			return errors.Wrap(err, "fail to print")
 		} else {
 			rp.PrintImage8bitDouble(img)
 		}
 	}
 
-	fFF, err := draw.GetHanuFont(16)
-	if err != nil {
-		return errors.Wrap(err, "fail to print")
-	}
-	lines = draw.FitLines(fFF, receipt.MaxWidth, fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr))
-	for _, l := range lines {
-		if img, err := draw.Txt2Img(fFF, l); err != nil {
-			return errors.Wrap(err, "fail to print")
-		} else {
-			rp.PrintImage8bitDouble(img)
-		}
-	}
 	return nil
 }
