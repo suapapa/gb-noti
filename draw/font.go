@@ -3,6 +3,7 @@ package draw
 import (
 	"image"
 	"image/color"
+	"log"
 	"sort"
 	"strings"
 
@@ -53,6 +54,10 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 	}
 	w = int(d.MeasureString(txt) >> 6)
 	h = int(ff.Metrics().Height >> 6)
+	w = ((w + 7) / 8) * 8 // set w to multiple 8
+	h = ((h + 7) / 8) * 8 // set h to multiple 8
+
+	log.Println(w, h)
 	return
 }
 
@@ -62,12 +67,12 @@ func MeasureTxt(ff font.Face, txt string) (w, h int) {
 
 func Txt2Img(ff font.Face, txt string) (image.Image, error) {
 	w, h := MeasureTxt(ff, txt)
-	dc := gg.NewContext(w+4, h+4)
+	dc := gg.NewContext(w, h)
 	dc.SetColor(color.White)
 	dc.Clear()
 	dc.SetColor(color.Black)
 	dc.SetFontFace(ff)
-	dc.DrawStringAnchored(txt, 2, 2, 0, 0.8)
+	dc.DrawStringAnchored(txt, float64(w)/2, float64(h)/2, 0.5, 0.3)
 	// if err := dc.SavePNG(fmt.Sprintf("out_%d.png", i)); err != nil {
 	// 	return nil, errors.Wrap(err, "fail to print")
 	// }
