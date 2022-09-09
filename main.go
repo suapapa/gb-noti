@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
@@ -54,17 +55,13 @@ func main() {
 	}
 
 	if flagTestRunPrinter {
-
 		jsonStr := `{"from":"","msg":"우리의 소원은 통일\r\n꿈에도 소원은 통일\r\n이 정성 다해서 통일\r\n통일을 이루자\r\n\r\n이 겨레 살리는 통일\r\n이 나라 살리는 통일\r\n통일이여 어서오라\r\n통일이여 오라","remoteAddr":"10.128.0.7:42213","timestamp":"2022-09-09T13:40:12Z"}`
 		var c chat
 		if err := json.Unmarshal([]byte(jsonStr), &c); err != nil {
 			log.Fatal(errors.Wrap(err, "fail to print"))
 		}
-		// TODO: print from here!
-		// log.Println(string(msg.Payload()))
 		printToReceipt(&c)
 		return
-
 	}
 
 	subC, err := connectBrokerByWSS(&conf)
@@ -86,6 +83,11 @@ func main() {
 		},
 	)
 
-	ch := make(chan any)
-	<-ch
+	tk := time.NewTicker(20 * time.Second)
+	defer tk.Stop()
+	for t := range tk.C {
+		if !subC.IsConnected() {
+			log.Fatalf("lost connect with mqtt: %b", t)
+		}
+	}
 }

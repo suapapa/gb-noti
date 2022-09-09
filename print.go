@@ -6,6 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
 	"github.com/suapapa/gb-noti/receipt"
+	"golang.org/x/text/encoding/korean"
+	"golang.org/x/text/transform"
 )
 
 type chat struct {
@@ -40,15 +42,20 @@ func printToReceipt(c *chat) error {
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
-
-	rp.WriteString(fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr))
 	lines := draw.FitLines(mFF, receipt.MaxWidth, c.Msg)
-	defer func() {
-		if len(lines) > 0 {
-			rp.CutPaper()
-		}
-	}()
+	if len(lines) == 0 {
+		return fmt.Errorf("no content")
+	}
 
+	fromUTF := fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr)
+	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), fromUTF)
+	if err != nil {
+		return errors.Wrap(err, "my printer only works with CP949 string")
+	}
+	rp.WriteString(fromCP949)
+
+	defer rp.CutPaper()
+	lines = append(lines, "---") // TODO: 마지막 줄이 잘려서 패딩 라인 붙임
 	for _, l := range lines {
 		if img, err := draw.Txt2Img(mFF, receipt.MaxWidth, l); err != nil {
 			return errors.Wrap(err, "fail to print")

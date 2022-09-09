@@ -10,6 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
+	golang.org/x/text v0.3.7
 )
 
 require (
