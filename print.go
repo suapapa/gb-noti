@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
@@ -13,6 +15,7 @@ import (
 type chat struct {
 	Msg        string `json:"msg"`
 	From       string `json:"from"`
+	TimeStamp  string `json:"timstamp"`
 	RemoteAddr string `json:"remoteAddr"`
 }
 
@@ -47,7 +50,11 @@ func printToReceipt(c *chat) error {
 		return fmt.Errorf("no content")
 	}
 
-	fromUTF := fmt.Sprintf("%s(%s)", c.From, c.RemoteAddr)
+	tsStr, err := makeKSTstr(c.TimeStamp)
+	if err != nil {
+		log.Printf("WARN: %f", err)
+	}
+	fromUTF := fmt.Sprintf("%s(%s)", c.From, tsStr)
 	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), fromUTF)
 	if err != nil {
 		return errors.Wrap(err, "my printer only works with CP949 string")
@@ -65,4 +72,17 @@ func printToReceipt(c *chat) error {
 	}
 
 	return nil
+}
+
+func makeKSTstr(timestamp string) (string, error) {
+	ts, err := time.Parse(timestamp, time.RFC3339)
+	if err != nil {
+		return timestamp, errors.Wrap(err, "fail to make kst str")
+	}
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return timestamp, errors.Wrap(err, "fail to make kst str")
+	}
+	kstTS := ts.In(loc)
+	return kstTS.Format(time.RFC3339), nil
 }
