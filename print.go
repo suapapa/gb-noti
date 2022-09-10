@@ -15,7 +15,7 @@ import (
 type chat struct {
 	Msg        string `json:"msg"`
 	From       string `json:"from"`
-	TimeStamp  string `json:"timstamp"`
+	TimeStamp  string `json:"timestamp"`
 	RemoteAddr string `json:"remoteAddr"`
 }
 
@@ -52,7 +52,7 @@ func printToReceipt(c *chat) error {
 
 	tsStr, err := makeKSTstr(c.TimeStamp)
 	if err != nil {
-		log.Printf("WARN: %f", err)
+		log.Printf("WARN: %v", err)
 	}
 	fromUTF := fmt.Sprintf("%s(%s)", c.From, tsStr)
 	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), fromUTF)

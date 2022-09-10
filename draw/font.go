@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"sort"
 	"strings"
 
@@ -41,7 +40,7 @@ func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
 			}
 
 			sl := string(rl[rlStart : rlStart+i])
-			log.Printf("sl += '%s'", sl)
+			// log.Printf("sl += '%s'", sl)
 			outLines = append(outLines, sl)
 
 			rlStart += i
@@ -51,7 +50,7 @@ func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
 }
 
 func MeasureTxt(ff font.Face, txt string) (w, h int) {
-	log.Printf("mesuing '%s'...", txt)
+	// log.Printf("measuring '%s'...", txt)
 	d := &font.Drawer{
 		Face: ff,
 	}
