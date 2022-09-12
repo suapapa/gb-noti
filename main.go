@@ -83,11 +83,17 @@ func main() {
 		},
 	)
 
-	tk := time.NewTicker(20 * time.Second)
+	tk := time.NewTicker(60 * time.Second)
 	defer tk.Stop()
 	for t := range tk.C {
-		if !subC.IsConnected() {
-			log.Fatalf("lost connect with mqtt: %b", t)
+		if !subC.IsConnectionOpen() {
+			log.Printf("ERR: lost connection: %v", t)
+			token := subC.Connect()
+			for !token.WaitTimeout(3 * time.Second) {
+			}
+			if err := token.Error(); err != nil {
+				log.Fatalf("FATAL: reconnect err: %v", err)
+			}
 		}
 	}
 }
