@@ -63,12 +63,16 @@ func main() {
 		printToReceipt(&c)
 		return
 	}
+	tk := time.NewTicker(60 * time.Second)
+	defer tk.Stop()
 
+connect:
 	subC, err := connectBrokerByWSS(&conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer subC.Disconnect(1000)
+	log.Println("connected with MQTT broker")
 	subC.Subscribe(topic, 1,
 		func(subClient mqtt.Client, msg mqtt.Message) {
 			log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
@@ -83,17 +87,12 @@ func main() {
 		},
 	)
 
-	tk := time.NewTicker(60 * time.Second)
-	defer tk.Stop()
-	for t := range tk.C {
+	for range tk.C {
 		if !subC.IsConnectionOpen() {
-			log.Printf("ERR: lost connection: %v", t)
-			token := subC.Connect()
-			for !token.WaitTimeout(3 * time.Second) {
-			}
-			if err := token.Error(); err != nil {
-				log.Fatalf("FATAL: reconnect err: %v", err)
-			}
+			break
 		}
 	}
+
+	log.Println("WARN! lost connection with MQTT broker")
+	goto connect
 }

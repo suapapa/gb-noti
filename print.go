@@ -54,12 +54,13 @@ func printToReceipt(c *chat) error {
 	if err != nil {
 		log.Printf("WARN: %v", err)
 	}
-	fromUTF := fmt.Sprintf("%s(%s)", c.From, tsStr)
-	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), fromUTF)
+	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), c.From)
 	if err != nil {
-		return errors.Wrap(err, "my printer only works with CP949 string")
+		log.Printf("WARN: %v", errors.Wrap(err, "my printer only works with CP949 string"))
+		fromCP949 = "UNKNOWN"
 	}
-	rp.WriteString(fromCP949)
+	fromUTF := fmt.Sprintf("%s\n%s", fromCP949, tsStr)
+	rp.WriteString(fromUTF)
 
 	defer rp.CutPaper()
 	lines = append(lines, " ") // TODO: 마지막 줄이 잘려서 패딩 라인 붙임
