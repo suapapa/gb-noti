@@ -59,7 +59,7 @@ func printToReceipt(c *chat) error {
 		log.Printf("WARN: %v", errors.Wrap(err, "my printer only works with CP949 string"))
 		fromCP949 = "UNKNOWN"
 	}
-	fromUTF := fmt.Sprintf("%s\n%s", fromCP949, tsStr)
+	fromUTF := fmt.Sprintf("%s\n%s", tsStr, fromCP949)
 	rp.WriteString(fromUTF)
 
 	defer rp.CutPaper()
