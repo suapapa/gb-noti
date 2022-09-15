@@ -71,7 +71,6 @@ connect:
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer subC.Disconnect(1000)
 	log.Println("connected with MQTT broker")
 	subC.Subscribe(topic, 1,
 		func(subClient mqtt.Client, msg mqtt.Message) {
@@ -94,5 +93,6 @@ connect:
 	}
 
 	log.Println("WARN! lost connection with MQTT broker")
+	subC.Disconnect(1000)
 	goto connect
 }
