@@ -19,7 +19,6 @@ type Config struct {
 }
 
 func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
-	var tlsConfig tls.Config
 	if config.CaCert == "" {
 		config.CaCert = "/etc/ssl/certs/ca-certificates.crt"
 	}
@@ -30,7 +29,10 @@ func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
 		return nil, errors.Wrap(err, "fail to connet broker")
 	}
 	certpool.AppendCertsFromPEM(ca)
+
+	var tlsConfig tls.Config
 	tlsConfig.RootCAs = certpool
+	// tlsConfig.SessionTicketsDisabled = true
 
 	opts := mqtt.NewClientOptions()
 	broker := fmt.Sprintf("wss://%s:%d/mqtt", config.Host, config.Port)
@@ -40,7 +42,6 @@ func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
 	opts.SetTLSConfig(&tlsConfig)
 	opts.SetOrderMatters(false)
 	opts.SetClientID("suapapa-gb-noti")
-	// opts.SetKeepAlive(20)
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	for !token.WaitTimeout(3 * time.Second) {
