@@ -33,7 +33,7 @@ func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
 
 	var tlsConfig tls.Config
 	tlsConfig.RootCAs = certpool
-	// tlsConfig.SessionTicketsDisabled = true
+	tlsConfig.SessionTicketsDisabled = true
 
 	opts := mqtt.NewClientOptions()
 	broker := fmt.Sprintf("wss://%s:%d/mqtt", config.Host, config.Port)

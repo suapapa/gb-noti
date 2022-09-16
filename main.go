@@ -75,21 +75,28 @@ func main() {
 		if err != nil {
 			return errors.Wrap(err, "fail to sub")
 		}
+		defer mqttC.Disconnect(1000)
 		log.Println("sub: connected with MQTT broker")
 		mqttC.Subscribe(topicGB, 1,
 			func(mqttClient mqtt.Client, msg mqtt.Message) {
-				log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
+				topic, payload := msg.Topic(), msg.Payload()
+				log.Printf("got %v from %s", string(payload), topic)
 
-				var c chat
-				if err := json.Unmarshal(msg.Payload(), &c); err != nil {
-					log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
-				}
-				if err := printToReceipt(&c); err != nil {
-					log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+				switch topic {
+				case "homin-dev/gb":
+					var c chat
+					if err := json.Unmarshal(msg.Payload(), &c); err != nil {
+						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+					}
+					if err := printToReceipt(&c); err != nil {
+						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+					}
+				default:
+					log.Printf("err: unknown topic %s", topic)
 				}
 			},
 		)
-		tk := time.NewTicker(60 * time.Second)
+		tk := time.NewTicker(10 * time.Second)
 		defer tk.Stop()
 		for range tk.C {
 			if !mqttC.IsConnectionOpen() {
@@ -104,6 +111,7 @@ func main() {
 		if err != nil {
 			return errors.Wrap(err, "fail to pub")
 		}
+		defer mqttC.Disconnect(1000)
 		log.Println("pub: connected with MQTT broker")
 		tk := time.NewTicker(60 * time.Second)
 		defer tk.Stop()
