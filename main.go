@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"log"
@@ -10,10 +11,12 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/receipt"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
-	topic = "homin-dev/gb"
+	topicGB = "homin-dev/gb" // guest book
+	topicHB = "homin-dev/hb" // heart beat
 )
 
 var (
@@ -53,6 +56,9 @@ func main() {
 		Username: os.Getenv("MQTT_USERNAME"),
 		Password: os.Getenv("MQTT_PASSWORD"),
 	}
+	confSub, confPub := conf, conf
+	confSub.ClientID = "suapapa-gb-noti-sub"
+	confPub.ClientID = "suapapa-gb-noti-pub"
 
 	if flagTestRunPrinter {
 		jsonStr := `{"from":"","msg":"우리의 소원은 통일\r\n꿈에도 소원은 통일\r\n이 정성 다해서 통일\r\n통일을 이루자\r\n\r\n이 겨레 살리는 통일\r\n이 나라 살리는 통일\r\n통일이여 어서오라\r\n통일이여 오라","remoteAddr":"10.128.0.7:42213","timestamp":"2022-09-09T13:40:12Z"}`
@@ -63,30 +69,53 @@ func main() {
 		printToReceipt(&c)
 		return
 	}
-	tk := time.NewTicker(60 * time.Second)
-	defer tk.Stop()
 
-	mqttC, err := connectBrokerByWSS(&conf)
-	if err != nil {
-		log.Fatal(err)
+	subF := func() error {
+		mqttC, err := connectBrokerByWSS(&confSub)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("sub: connected with MQTT broker")
+		mqttC.Subscribe(topicGB, 1,
+			func(mqttClient mqtt.Client, msg mqtt.Message) {
+				log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
+
+				var c chat
+				if err := json.Unmarshal(msg.Payload(), &c); err != nil {
+					log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+				}
+				if err := printToReceipt(&c); err != nil {
+					log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+				}
+			},
+		)
+		tk := time.NewTicker(60 * time.Second)
+		defer tk.Stop()
+		for range tk.C {
+			if !mqttC.IsConnectionOpen() {
+				return errors.Wrap(err, "mqtt sub conn lost")
+			}
+		}
+		return nil
 	}
-	log.Println("connected with MQTT broker")
-	tkn := mqttC.Subscribe(topic, 1,
-		func(mqttClient mqtt.Client, msg mqtt.Message) {
-			log.Printf("got %v from %s", string(msg.Payload()), msg.Topic())
 
-			var c chat
-			if err := json.Unmarshal(msg.Payload(), &c); err != nil {
-				log.Fatal(errors.Wrap(err, "fail to print"))
-			}
-			if err := printToReceipt(&c); err != nil {
-				log.Fatal(errors.Wrap(err, "fail to print"))
-			}
-		},
-	)
-	tkn.Wait()
-	log.Printf("subscribe Done: %v", tkn.Error())
+	pubF := func() error {
+		mqttC, err := connectBrokerByWSS(&confPub)
+		if err != nil {
+			return errors.Wrap(err, "fail to pub")
+		}
+		log.Println("pub: connected with MQTT broker")
+		tk := time.NewTicker(60 * time.Second)
+		defer tk.Stop()
+		for range tk.C {
+			mqttC.Publish(topicHB, 0, false, "gb-noti")
+		}
+		return nil
+	}
 
-	log.Println("WARN! lost connection with MQTT broker")
-	mqttC.Disconnect(1000)
+	eg, _ := errgroup.WithContext(context.Background())
+	eg.Go(pubF)
+	eg.Go(subF)
+	err := eg.Wait()
+	log.Printf("eg stop: %v", err)
 }

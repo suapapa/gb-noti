@@ -12,6 +12,7 @@ import (
 )
 
 type Config struct {
+	ClientID           string
 	Host               string
 	Port               int
 	Username, Password string
@@ -41,7 +42,7 @@ func connectBrokerByWSS(config *Config) (mqtt.Client, error) {
 	opts.SetPassword(config.Password)
 	opts.SetTLSConfig(&tlsConfig)
 	opts.SetOrderMatters(false)
-	opts.SetClientID("suapapa-gb-noti")
+	opts.SetClientID(config.ClientID)
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	for !token.WaitTimeout(3 * time.Second) {
