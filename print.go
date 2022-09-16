@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
@@ -50,16 +49,12 @@ func printToReceipt(c *chat) error {
 		return fmt.Errorf("no content")
 	}
 
-	tsStr, err := makeKSTstr(c.TimeStamp)
-	if err != nil {
-		log.Printf("WARN: %v", err)
-	}
 	fromCP949, _, err := transform.String(korean.EUCKR.NewEncoder(), c.From)
 	if err != nil {
 		log.Printf("WARN: %v", errors.Wrap(err, "my printer only works with CP949 string"))
 		fromCP949 = "UNKNOWN"
 	}
-	fromUTF := fmt.Sprintf("%s\n%s", tsStr, fromCP949)
+	fromUTF := fmt.Sprintf("%s\n%s", c.TimeStamp, fromCP949)
 	rp.WriteString(fromUTF)
 
 	defer rp.CutPaper()
@@ -73,17 +68,4 @@ func printToReceipt(c *chat) error {
 	}
 
 	return nil
-}
-
-func makeKSTstr(timestamp string) (string, error) {
-	ts, err := time.Parse(timestamp, time.RFC3339)
-	if err != nil {
-		return timestamp, errors.Wrap(err, "fail to make kst str")
-	}
-	loc, err := time.LoadLocation("Asia/Seoul")
-	if err != nil {
-		return timestamp, errors.Wrap(err, "fail to make kst str")
-	}
-	kstTS := ts.In(loc)
-	return kstTS.Format(time.RFC3339), nil
 }

@@ -85,7 +85,7 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 	nH := byte(w / 256)
 	nL := byte(w % 256)
 	mode := byte(1)
-	log.Println(nL, nH, mode)
+	// log.Println(nL, nH, mode)
 	cmdBuf := []byte{0x1B, 0x2A, mode, nL, nH}
 
 	dataBufIdx := 0
