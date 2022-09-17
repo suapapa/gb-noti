@@ -40,6 +40,7 @@ func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
 			}
 
 			sl := string(rl[rlStart : rlStart+i])
+			sl = strings.TrimSpace(sl)
 			// log.Printf("sl += '%s'", sl)
 			outLines = append(outLines, sl)
 
