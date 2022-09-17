@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	//go:embed font/나눔손글씨_강부장님체.ttf
+	//go:embed font/NotoSans-Regular.ttf
 	efs embed.FS
 
 	handwritingFont map[float64]font.Face
@@ -23,7 +23,7 @@ func GetHandWritingFont(points float64) (font.Face, error) {
 		return ff, nil
 	}
 
-	fontName := "font/나눔손글씨_강부장님체.ttf"
+	fontName := "font/NotoSans-Regular.ttf"
 	data, err := efs.ReadFile(fontName)
 	if err != nil {
 		return nil, err
