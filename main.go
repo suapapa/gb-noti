@@ -99,7 +99,7 @@ func main() {
 		tk := time.NewTicker(10 * time.Second)
 		defer tk.Stop()
 		for range tk.C {
-			if !mqttC.IsConnectionOpen() {
+			if !mqttC.IsConnected() || !mqttC.IsConnectionOpen() {
 				return errors.Wrap(err, "mqtt sub conn lost")
 			}
 		}
