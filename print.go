@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/nfnt/resize"
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
 	"github.com/suapapa/gb-noti/receipt"
@@ -40,7 +41,7 @@ func printToReceipt(c *chat) error {
 
 // 각 줄을 이미지로 만들어 출력
 func printToReceipt(c *chat) error {
-	mFF, err := draw.GetFont(36)
+	mFF, err := draw.GetFont(48)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
@@ -63,6 +64,9 @@ func printToReceipt(c *chat) error {
 		if img, err := draw.Txt2Img(mFF, receipt.MaxWidth, l); err != nil {
 			return errors.Wrap(err, "fail to print")
 		} else {
+			w := img.Bounds().Dx()
+			h := img.Bounds().Dy() / 3
+			img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
 			rp.PrintImage8bitDouble(img)
 		}
 	}
