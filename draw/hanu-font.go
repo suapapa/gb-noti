@@ -8,22 +8,22 @@ import (
 )
 
 var (
-	//go:embed font/NotoSans-Regular.ttf
+	//go:embed font/MaruBuri-Regular.ttf
 	efs embed.FS
 
-	handwritingFont map[float64]font.Face
+	fonts map[float64]font.Face
 )
 
 func init() {
-	handwritingFont = make(map[float64]font.Face)
+	fonts = make(map[float64]font.Face)
 }
 
-func GetHandWritingFont(points float64) (font.Face, error) {
-	if ff, ok := handwritingFont[points]; ok {
+func GetFont(points float64) (font.Face, error) {
+	if ff, ok := fonts[points]; ok {
 		return ff, nil
 	}
 
-	fontName := "font/NotoSans-Regular.ttf"
+	fontName := "font/MaruBuri-Regular.ttf"
 	data, err := efs.ReadFile(fontName)
 	if err != nil {
 		return nil, err
@@ -38,6 +38,6 @@ func GetHandWritingFont(points float64) (font.Face, error) {
 		Hinting: font.HintingFull,
 		// Hinting: font.HintingNone,
 	})
-	handwritingFont[points] = nface
+	fonts[points] = nface
 	return nface, nil
 }

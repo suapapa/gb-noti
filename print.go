@@ -40,7 +40,7 @@ func printToReceipt(c *chat) error {
 
 // 각 줄을 이미지로 만들어 출력
 func printToReceipt(c *chat) error {
-	mFF, err := draw.GetHandWritingFont(36)
+	mFF, err := draw.GetFont(36)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
