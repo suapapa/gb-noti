@@ -12,6 +12,7 @@ import (
 )
 
 func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
+
 	origTxt = strings.ReplaceAll(origTxt, "\r\n", "\n")
 	lines := strings.Split(origTxt, "\n")
 	var outLines []string
@@ -37,6 +38,23 @@ func FitToLines(ff font.Face, maxWidth int, origTxt string) []string {
 			for w > maxWidth {
 				i -= 1
 				w, _ = MeasureTxt(ff, string(rlSub[:i]))
+			}
+
+			// wordWrap
+			origI := i
+			var lastSpaceIdx int
+			for ; i > 1; i-- {
+				if rl[rlStart+i-1] == ' ' {
+					lastSpaceIdx = i
+					break
+				}
+			}
+			if i <= 1 {
+				i = origI
+			} else if w, _ := MeasureTxt(ff, string(rl[rlStart:])); w < maxWidth {
+				i = origI
+			} else {
+				i = lastSpaceIdx
 			}
 
 			sl := string(rl[rlStart : rlStart+i])
