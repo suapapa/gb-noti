@@ -63,20 +63,7 @@ func (p *Printer) Close() error {
 }
 
 func (p *Printer) PrintImage8bitDouble(img image.Image) error {
-	// decode jpeg into image.Image
-	// img, _, err := image.Decode(file)
-	// if err != nil {
-	// 	return errors.Wrap(err, "fail to print image")
-	// }
-	// origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 	w, h := img.Bounds().Dx(), img.Bounds().Dy()
-
-	// var w, h int
-	// if origW != MaxWidth {
-	// 	w = MaxWidth
-	// 	h = ((origH * w) / origW) / 3
-	// 	img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
-	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
 	dataBuf := make([]byte, (w*h+7)/8)
@@ -85,7 +72,6 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 	nH := byte(w / 256)
 	nL := byte(w % 256)
 	mode := byte(1)
-	// log.Println(nL, nH, mode)
 	cmdBuf := []byte{0x1B, 0x2A, mode, nL, nH}
 
 	dataBufIdx := 0
@@ -115,20 +101,7 @@ func (p *Printer) PrintImage8bitDouble(img image.Image) error {
 }
 
 func (p *Printer) PrintImage24bitDouble(img image.Image) error {
-	// decode jpeg into image.Image
-	// img, _, err := image.Decode(file)
-	// if err != nil {
-	// 	return errors.Wrap(err, "fail to print image")
-	// }
-	// origW, origH := img.Bounds().Dx(), img.Bounds().Dy()
 	w, h := img.Bounds().Dx(), img.Bounds().Dy()
-
-	// var w, h int
-	// if origW < MaxWidth {
-	// 	w = 576 // maxWidth
-	// 	h = ((origH * w) / origW)
-	// 	img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
-	// }
 
 	ditheredImg := dither.Monochrome(dither.Burkes, img, 1.18)
 	dataBuf := make([]byte, (w*h+7)/8)
