@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -26,6 +27,9 @@ var (
 	flagRpType         string
 	flagRpDevPath      string
 	flagTestRunPrinter bool
+
+	lastPork    = time.Now()
+	maxWaitPork = 3 * time.Minute
 
 	rp *receipt.Printer
 )
@@ -88,9 +92,14 @@ func main() {
 					if err := json.Unmarshal(msg.Payload(), &c); err != nil {
 						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
 					}
-					if err := printToReceipt(&c); err != nil {
-						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+					// dont print if it is just a pork
+					if !c.Pork {
+						if err := printToReceipt(&c); err != nil {
+							log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
+						}
 					}
+					lastPork = time.Now()
+
 				default:
 					log.Printf("err: unknown topic %s", topic)
 				}
@@ -106,24 +115,38 @@ func main() {
 		return nil
 	}
 
-	pubF := func() error {
-		mqttC, err := connectBrokerByWSS(&confPub)
-		if err != nil {
-			return errors.Wrap(err, "fail to pub")
+	/*
+		pubF := func() error {
+			mqttC, err := connectBrokerByWSS(&confPub)
+			if err != nil {
+				return errors.Wrap(err, "fail to pub")
+			}
+			defer mqttC.Disconnect(1000)
+			log.Println("pub: connected with MQTT broker")
+			tk := time.NewTicker(60 * time.Second)
+			defer tk.Stop()
+			for range tk.C {
+				mqttC.Publish(topicHB, 0, false, "gb-noti")
+			}
+			return nil
 		}
-		defer mqttC.Disconnect(1000)
-		log.Println("pub: connected with MQTT broker")
-		tk := time.NewTicker(60 * time.Second)
-		defer tk.Stop()
-		for range tk.C {
-			mqttC.Publish(topicHB, 0, false, "gb-noti")
-		}
-		return nil
-	}
+	*/
 
 	eg, _ := errgroup.WithContext(context.Background())
-	eg.Go(pubF)
+	// eg.Go(pubF)
 	eg.Go(subF)
+	eg.Go(checkPork)
 	err := eg.Wait()
 	log.Printf("eg stop: %v", err)
+}
+
+func checkPork() error {
+	tk := time.NewTicker(5 * time.Second)
+	defer tk.Stop()
+	for range tk.C {
+		if time.Since(lastPork) > maxWaitPork {
+			return fmt.Errorf("no porking over %v", maxWaitPork)
+		}
+	}
+	return nil
 }

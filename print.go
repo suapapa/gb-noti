@@ -17,6 +17,7 @@ type chat struct {
 	From       string `json:"from"`
 	TimeStamp  string `json:"timestamp"`
 	RemoteAddr string `json:"remoteAddr"`
+	Pork       bool   `json:"pork,omitempty"`
 }
 
 // 전체 메시지를 통 이미지로 만들어 출력
