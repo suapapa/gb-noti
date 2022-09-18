@@ -75,6 +75,7 @@ func Txt2Img(ff font.Face, w int, txt string) (image.Image, error) {
 	}
 
 	_, h := MeasureTxt(ff, txt)
+	h += 20 // add padding
 	dc := gg.NewContext(w, h)
 	dc.SetColor(color.White)
 	dc.Clear()

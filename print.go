@@ -17,6 +17,7 @@ type chat struct {
 	From       string `json:"from"`
 	TimeStamp  string `json:"timestamp"`
 	RemoteAddr string `json:"remoteAddr"`
+	Pork       bool   `json:"pork,omitempty"`
 }
 
 // 전체 메시지를 통 이미지로 만들어 출력
@@ -65,7 +66,7 @@ func printToReceipt(c *chat) error {
 			return errors.Wrap(err, "fail to print")
 		} else {
 			w := img.Bounds().Dx()
-			h := img.Bounds().Dy() / 3
+			h := (img.Bounds().Dy() + 7) / 3
 			img = resize.Resize(uint(w), uint(h), img, resize.Lanczos3)
 			rp.PrintImage8bitDouble(img)
 		}
