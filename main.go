@@ -24,9 +24,9 @@ var (
 	programName                   = "gb-noti"
 	buildStamp, gitHash, buildTag string
 
-	flagRpType         string
-	flagRpDevPath      string
-	flagTestRunPrinter bool
+	flagRpType    string
+	flagRpDevPath string
+	flagHQ        bool
 
 	lastPork    = time.Now()
 	maxWaitPork = 3 * time.Minute
@@ -40,7 +40,7 @@ func main() {
 
 	flag.StringVar(&flagRpType, "t", "serial", "receipt printer type [serial|usb]")
 	flag.StringVar(&flagRpDevPath, "d", "/dev/ttyACM0", "receipt printer dev path")
-	flag.BoolVar(&flagTestRunPrinter, "tp", false, "test run printer")
+	flag.BoolVar(&flagHQ, "q", false, "better quality printing")
 	flag.Parse()
 
 	switch flagRpType {
@@ -63,16 +63,6 @@ func main() {
 	confSub, confPub := conf, conf
 	confSub.ClientID = "suapapa-gb-noti-sub"
 	confPub.ClientID = "suapapa-gb-noti-pub"
-
-	if flagTestRunPrinter {
-		jsonStr := `{"from":"","msg":"우리의 소원은 통일\r\n꿈에도 소원은 통일\r\n이 정성 다해서 통일\r\n통일을 이루자\r\n\r\n이 겨레 살리는 통일\r\n이 나라 살리는 통일\r\n통일이여 어서오라\r\n통일이여 오라","remoteAddr":"10.128.0.7:42213","timestamp":"2022-09-09T13:40:12Z"}`
-		var c chat
-		if err := json.Unmarshal([]byte(jsonStr), &c); err != nil {
-			log.Fatal(errors.Wrap(err, "fail to print"))
-		}
-		printToReceipt(&c)
-		return
-	}
 
 	subF := func() error {
 		mqttC, err := connectBrokerByWSS(&confSub)

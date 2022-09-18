@@ -66,10 +66,23 @@ func printToReceipt(c *chat) error {
 			return errors.Wrap(err, "fail to print")
 		} else {
 			w := uint(img.Bounds().Dx())
-			h := uint(img.Bounds().Dy()) / 3
+			h := uint(img.Bounds().Dy())
+			if !flagHQ {
+				h /= 3
+			}
+
 			h = 8 * ((h + 7) / 8)
 			img = resize.Resize(w, h, img, resize.Lanczos3)
-			rp.PrintImage8bitDouble(img)
+
+			if flagHQ {
+				if err := rp.PrintImage24bitDouble(img); err != nil {
+					return errors.Wrap(err, "fail to print")
+				}
+			} else {
+				if err := rp.PrintImage8bitDouble(img); err != nil {
+					return errors.Wrap(err, "fail to print")
+				}
+			}
 		}
 	}
 
