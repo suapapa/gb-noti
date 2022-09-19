@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
 	"github.com/suapapa/gb-noti/receipt"
+	"golang.org/x/image/font"
 	"golang.org/x/text/encoding/korean"
 	"golang.org/x/text/transform"
 )
@@ -42,7 +45,7 @@ func printToReceipt(c *chat) error {
 
 // 각 줄을 이미지로 만들어 출력
 func printToReceipt(c *chat) error {
-	mFF, err := draw.GetFont(48)
+	mFF, err := getFont(48)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
@@ -87,4 +90,26 @@ func printToReceipt(c *chat) error {
 	}
 
 	return nil
+}
+
+func getFont(size float64) (font.Face, error) {
+	if flagFontPath != "" {
+		data, err := os.ReadFile(flagFontPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "fail to load font")
+		}
+		f, err := truetype.Parse(data)
+		if err != nil {
+			return nil, errors.Wrap(err, "fail to load font")
+		}
+
+		nface := truetype.NewFace(f, &truetype.Options{
+			Size:    size,
+			Hinting: font.HintingFull,
+			// Hinting: font.HintingNone,
+		})
+		return nface, nil
+	}
+
+	return draw.GetFont(size)
 }

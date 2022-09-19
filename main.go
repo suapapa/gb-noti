@@ -26,6 +26,7 @@ var (
 
 	flagRpType    string
 	flagRpDevPath string
+	flagFontPath  string
 	flagHQ        bool
 
 	lastPork    = time.Now()
@@ -40,6 +41,7 @@ func main() {
 
 	flag.StringVar(&flagRpType, "t", "serial", "receipt printer type [serial|usb]")
 	flag.StringVar(&flagRpDevPath, "d", "/dev/ttyACM0", "receipt printer dev path")
+	flag.StringVar(&flagFontPath, "f", "", "external font path to use")
 	flag.BoolVar(&flagHQ, "q", false, "better quality printing")
 	flag.Parse()
 
