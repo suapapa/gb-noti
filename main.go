@@ -12,6 +12,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/receipt"
+	"github.com/suapapa/site-gb/msg"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -74,19 +75,21 @@ func main() {
 		defer mqttC.Disconnect(1000)
 		log.Println("sub: connected with MQTT broker")
 		mqttC.Subscribe(topicGB, 1,
-			func(mqttClient mqtt.Client, msg mqtt.Message) {
-				topic, payload := msg.Topic(), msg.Payload()
+			func(mqttClient mqtt.Client, mqttMsg mqtt.Message) {
+				topic, payload := mqttMsg.Topic(), mqttMsg.Payload()
 				log.Printf("got %v from %s", string(payload), topic)
 
 				switch topic {
 				case "homin-dev/gb":
-					var c chat
-					if err := json.Unmarshal(msg.Payload(), &c); err != nil {
+					var m msg.Message
+					if err := json.Unmarshal(mqttMsg.Payload(), &m); err != nil {
 						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
 					}
+
 					// dont print if it is just a pork
-					if !c.Pork {
-						if err := printToReceipt(&c); err != nil {
+					if m.Type == msg.MTGuestBook {
+						gb := m.Data.(*msg.GuestBook)
+						if err := printToReceipt(gb); err != nil {
 							log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
 						}
 					}

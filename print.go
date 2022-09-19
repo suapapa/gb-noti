@@ -10,18 +10,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/suapapa/gb-noti/draw"
 	"github.com/suapapa/gb-noti/receipt"
+	"github.com/suapapa/site-gb/msg"
 	"golang.org/x/image/font"
 	"golang.org/x/text/encoding/korean"
 	"golang.org/x/text/transform"
 )
-
-type chat struct {
-	Msg        string `json:"msg"`
-	From       string `json:"from"`
-	TimeStamp  string `json:"timestamp"`
-	RemoteAddr string `json:"remoteAddr"`
-	Pork       bool   `json:"pork,omitempty"`
-}
 
 // 전체 메시지를 통 이미지로 만들어 출력
 /*
@@ -44,12 +37,12 @@ func printToReceipt(c *chat) error {
 */
 
 // 각 줄을 이미지로 만들어 출력
-func printToReceipt(c *chat) error {
+func printToReceipt(c *msg.GuestBook) error {
 	mFF, err := getFont(48)
 	if err != nil {
 		return errors.Wrap(err, "fail to print")
 	}
-	lines := draw.FitToLines(mFF, receipt.MaxWidth, c.Msg)
+	lines := draw.FitToLines(mFF, receipt.MaxWidth, c.Content)
 	if len(lines) == 0 {
 		return fmt.Errorf("no content")
 	}
