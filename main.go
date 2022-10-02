@@ -31,7 +31,7 @@ var (
 	flagHQ        bool
 
 	lastPork    = time.Now()
-	maxWaitPork = 3 * time.Minute
+	maxWaitPork = 35 * time.Minute
 
 	rp *receipt.Printer
 )
