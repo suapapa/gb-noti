@@ -88,12 +88,12 @@ func main() {
 
 					// dont print if it is just a pork
 					if m.Type == msg.MTGuestBook {
-						if gb, ok := m.Data.(*msg.GuestBook); ok {
-							if err := printToReceipt(gb); err != nil {
+						if gb, ok := m.Data.(msg.GuestBook); ok {
+							if err := printToReceipt(&gb); err != nil {
 								log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
 							}
 						} else {
-							log.Printf("err: fail to convert mst.Data to GuestBook")
+							log.Printf("err: fail to convert msg.Data to GuestBook")
 						}
 					}
 					lastPork = time.Now()
