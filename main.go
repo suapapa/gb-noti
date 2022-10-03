@@ -105,23 +105,6 @@ func main() {
 		return nil
 	}
 
-	/*
-		pubF := func() error {
-			mqttC, err := connectBrokerByWSS(&confPub)
-			if err != nil {
-				return errors.Wrap(err, "fail to pub")
-			}
-			defer mqttC.Disconnect(1000)
-			log.Println("pub: connected with MQTT broker")
-			tk := time.NewTicker(60 * time.Second)
-			defer tk.Stop()
-			for range tk.C {
-				mqttC.Publish(topicHB, 0, false, "gb-noti")
-			}
-			return nil
-		}
-	*/
-
 	eg, _ := errgroup.WithContext(context.Background())
 	// eg.Go(pubF)
 	eg.Go(subF)
@@ -142,25 +125,12 @@ func checkPork() error {
 }
 
 func getGBFromMsg(msgBytes []byte) (*msg.GuestBook, error) {
-	var err error
-	var m msg.Message
-	if err = json.Unmarshal(msgBytes, &m); err != nil {
+	m := msg.Message{
+		Data: &msg.GuestBook{}, // it is needed. if not data will be map[string]any
+	}
+	if err := json.Unmarshal(msgBytes, &m); err != nil {
 		return nil, errors.Wrap(err, "fail to get gb from msg")
 	}
 
-	if m.Type != msg.MTGuestBook {
-		return nil, fmt.Errorf("fail to get gb from msg: unknown mt %v", m.Type)
-	}
-
-	var gbDataBytes []byte
-	if gbDataBytes, err = json.Marshal(&m.Data); err != nil {
-		return nil, errors.Wrap(err, "fail to get gb from msg")
-	}
-
-	var gb msg.GuestBook
-	if err = json.Unmarshal(gbDataBytes, &gb); err != nil {
-		return nil, errors.Wrap(err, "fail to get gb from msg")
-	}
-
-	return &gb, nil
+	return m.GetGuestBook()
 }
