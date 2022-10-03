@@ -81,22 +81,14 @@ func main() {
 
 				switch topic {
 				case "homin-dev/gb":
-					var m msg.Message
-					if err := json.Unmarshal(mqttMsg.Payload(), &m); err != nil {
+					lastPork = time.Now()
+					if gb, err := getGBFromMsg(mqttMsg.Payload()); err != nil {
 						log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
-					}
-
-					// dont print if it is just a pork
-					if m.Type == msg.MTGuestBook {
-						if gb, ok := m.Data.(msg.GuestBook); ok {
-							if err := printToReceipt(&gb); err != nil {
-								log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
-							}
-						} else {
-							log.Printf("err: fail to convert msg.Data to GuestBook")
+					} else {
+						if err := printToReceipt(gb); err != nil {
+							log.Printf("err: %v", errors.Wrap(err, "fail in sub"))
 						}
 					}
-					lastPork = time.Now()
 
 				default:
 					log.Printf("err: unknown topic %s", topic)
@@ -147,4 +139,28 @@ func checkPork() error {
 		}
 	}
 	return nil
+}
+
+func getGBFromMsg(msgBytes []byte) (*msg.GuestBook, error) {
+	var err error
+	var m msg.Message
+	if err = json.Unmarshal(msgBytes, &m); err != nil {
+		return nil, errors.Wrap(err, "fail to get gb from msg")
+	}
+
+	if m.Type != msg.MTGuestBook {
+		return nil, fmt.Errorf("fail to get gb from msg: unknown mt %v", m.Type)
+	}
+
+	var gbDataBytes []byte
+	if gbDataBytes, err = json.Marshal(&m.Data); err != nil {
+		return nil, errors.Wrap(err, "fail to get gb from msg")
+	}
+
+	var gb msg.GuestBook
+	if err = json.Unmarshal(gbDataBytes, &gb); err != nil {
+		return nil, errors.Wrap(err, "fail to get gb from msg")
+	}
+
+	return &gb, nil
 }
